@@ -11,27 +11,30 @@ class FiniteField(p):
     def multiply(self, a, b):
         return f(a*b)
     def inverse(self, a):
-        (x, y) = euclide(p, a)
-        return bezout(x, y)
+        return euclide(p, a)
     def divide(slef, a, b):
-        return f(a/b)
+        return multiply(a, inverse(self, b))
 
 def euclide(a, b):
-    x = [a]
-    y = [b]
+    x = [a, b]
+    r = [1, 0]
+    s = [0 ,1]
 
-    def helper(x, y, i):
-        c = x[i]//y[i]
-        if c < 1:
-            return (0, 0)
-        x.append(y[i])
-        y.append(c)
-        if c==1:
-            return (x, y)
+    def helper(x, r, s, i):
+        alpha = x[i-1]
+        beta = x[i]
+
+        c = (alpha//beta)
+        gamma = alpha - beta*c
+        if gamma < 1:
+            return null
+        x.append(c)
+        r.append(r[i-1] - c*r[i])
+        s.append(s[i-1] - c*s[i])
+        if gamma==1:
+            return s[i+1]
         else :
-            return helper(x, y, i++)
+            return helper(x, r, s i++)
 
-    return helper(x, y, 0)
-
-
-def bezout(a, b, c):
+    res = helper(x, r, s, 1)
+    return res if res > 0 else f(res)
