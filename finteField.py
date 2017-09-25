@@ -1,20 +1,34 @@
 class FiniteField(p):
+
+    #return x mod p
     def f(x):
         return x % p
 
+    #add two numbers mod p
     def add(self, a, b):
         return f(a + b)
+
+    #return opposite (mod p) of input number
     def opposite(self, a):
         return (p-a) % p
+
+    #substract two numbers mod p
     def substract(self, a, b):
         return f(a + opposite(self, b))
+
+    #multiply two numbers mod p
     def multiply(self, a, b):
         return f(a*b)
+
+    #return inverse (mod p) of input number
     def inverse(self, a):
         return euclide(p, a)
+
+    #divide two numbers mod p
     def divide(slef, a, b):
         return multiply(a, inverse(self, b))
 
+#Find inverse of a number (mod p) using extented Euclide algorithm
 def euclide(a, b):
     x = [a, b]
     r = [1, 0]
