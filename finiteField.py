@@ -1,45 +1,48 @@
-class FiniteField(p):
+class FiniteField:
+
+    def __init__(self, p):
+        self.p = p
 
     #return x mod p
-    def f(x):
-        return x % p
+    def f(self, x):
+        return x % self.p
 
     #add two numbers mod p
     def add(self, a, b):
-        return f(a + b)
+        return self.f(a + b)
 
     #return opposite (mod p) of input number
     def opposite(self, a):
-        return (p-a) % p
+        return self.f(self.p - a)
 
     #substract two numbers mod p
     def substract(self, a, b):
-        return f(a + opposite(self, b))
+        return self.f(a + self.opposite(b))
 
     #multiply two numbers mod p
     def multiply(self, a, b):
-        return f(a*b)
+        return self.f(a*b)
 
     #return inverse (mod p) of input number
     def inverse(self, a):
-        return euclide(p, a)
+        return self.f(euclide(self.p, a))
 
     #divide two numbers (mod p)
     def divide(self, a, b):
-        return multiply(a, inverse(self, b))
+        return self.multiply(a, self.inverse(b))
 
     #return a^b (mod p)
     def power(self, a, b):
         if b == 0:
             return 1
         elif b == 1:
-            return a
+            return self.f(a)
         elif b % 2 == 0:
-            halfPower = power(self, a, b/2)
-            return multiply(halfPower, halfPower)
+            halfPower = self.power(a, b/2)
+            return self.multiply(halfPower, halfPower)
         else:
-            halfPower = power(self, a, (b-1)/2)
-            return multiply(multiply(a, halfPower), halfPower)
+            halfPower = self.power(a, (b-1)/2)
+            return self.multiply(self.multiply(a, halfPower), halfPower)
 
 #Find inverse of a number (mod p) using extented Euclide algorithm
 def euclide(a, b):
@@ -54,14 +57,14 @@ def euclide(a, b):
         c = (alpha//beta)
         gamma = alpha - beta*c
         if gamma < 1:
-            return null
-        x.append(c)
+            return s[i]
+        x.append(x[i-1] - c*x[i])
         r.append(r[i-1] - c*r[i])
         s.append(s[i-1] - c*s[i])
         if gamma==1:
             return s[i+1]
         else :
-            return helper(x, r, s i++)
+            return helper(x, r, s, i+1)
 
     res = helper(x, r, s, 1)
-    return res if res > 0 else f(res)
+    return res if res > 0 else res
