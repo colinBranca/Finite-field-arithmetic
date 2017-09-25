@@ -24,9 +24,22 @@ class FiniteField(p):
     def inverse(self, a):
         return euclide(p, a)
 
-    #divide two numbers mod p
-    def divide(slef, a, b):
+    #divide two numbers (mod p)
+    def divide(self, a, b):
         return multiply(a, inverse(self, b))
+
+    #return a^b (mod p)
+    def power(self, a, b):
+        if b == 0:
+            return 1
+        elif b == 1:
+            return a
+        elif b % 2 == 0:
+            halfPower = power(self, a, b/2)
+            return multiply(halfPower, halfPower)
+        else:
+            halfPower = power(self, a, (b-1)/2)
+            return multiply(multiply(a, halfPower), halfPower)
 
 #Find inverse of a number (mod p) using extented Euclide algorithm
 def euclide(a, b):
