@@ -57,6 +57,10 @@ def FiniteField(p):
         def __str__(self) :
             return '%d mod(%d)' % (self.n, self.p)
 
+        #return the field as a string
+        def __repr__(self) :
+            return '%d mod(%d)' % (self.n, self.p)
+
     Field.p = p
     return Field
 
