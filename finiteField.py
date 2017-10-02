@@ -103,3 +103,14 @@ def isPrime(x):
         if x % i == 0:
             return False
     return True
+
+
+def sqrt(x):
+    x1 = x//2
+    x2 = x
+    while x1 < x2:
+        x3 = x2
+        x2 = (x1 + (x//x2)//2)
+        print 'x1 = {}'.format(x1)
+        x1 = x3
+    return x1
