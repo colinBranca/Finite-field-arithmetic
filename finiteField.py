@@ -105,12 +105,13 @@ def isPrime(x):
     return True
 
 
-def sqrt(x):
-    x1 = x//2
-    x2 = x
-    while x1 < x2:
-        x3 = x2
-        x2 = (x1 + (x//x2)//2)
-        print 'x1 = {}'.format(x1)
-        x1 = x3
-    return x1
+#return the square root of a number rounded to lower value
+#using Newton's method
+def sqrt(a):
+    x1 = float(a)
+    dif = 1
+    while dif > 0.1:
+        x2 = 0.5 * (x1 + a/x1)
+        dif = abs(x1 - x2)
+        x1 = x2
+    return int(x1)
