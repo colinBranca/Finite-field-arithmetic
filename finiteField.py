@@ -61,7 +61,11 @@ def FiniteField(p):
         def __repr__(self) :
             return '%d mod(%d)' % (self.n, self.p)
 
-    Field.p = p
+    if(isPrime(p)):
+        Field.p = p
+    else:
+        print 'p is not prime'
+        return
     return Field
 
 #Find inverse of a number (mod p) using extented Euclide algorithm
@@ -88,3 +92,14 @@ def euclide(a, b):
 
     res = helper(x, r, s, 1)
     return res if res > 0 else res
+
+def isPrime(x):
+    if x == 2:
+        return True
+    elif x % 2 == 0 or x == 1:
+        return False
+
+    for i in range(3, x, 2):
+        if x % i == 0:
+            return False
+    return True
