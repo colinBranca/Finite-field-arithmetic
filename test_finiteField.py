@@ -1,34 +1,49 @@
 from finiteField import FiniteField
 
 field = FiniteField(79)
-f = field.f
 
-a = f(109)
+
+a = field(109)
 print 'a = {}'.format(a)
 
-b = f(2000)
+b = field(204)
 print 'b = {}'.format(b)
 
-plus = field.add(a, b)
+#test addition
+plus = a + b
 print 'a + b = {}'.format(plus)
 
-opposite = field.opposite(a)
+#test opposite
+opposite = -a
 print '- a = {}'.format(opposite)
 
-minus = field.substract(b, a)
-print 'b - a = {}'.format(minus)
+#test substraction
+minus = a - b
+print 'a - b = {}'.format(minus)
 
-product = field.multiply(a, b)
+#test multiplication
+product = a * b
 print 'a * b = {}'.format(product)
 
-inverse = field.inverse(a)
+#test inverse
+inverse = a.inverse()
 print '1 / a = {}'.format(inverse)
 
-mul = field.multiply(a, inverse)
+#test division
+mul = a * inverse
 print 'a / a = {}'.format(mul)
 
-quotient = field.divide(a, b)
+#test division
+quotient = a / b
 print 'a / b = {}'.format(quotient)
 
-power = field.power(a, 15)
-print 'a^15 = {}'.format(power)
+#test power with b as finiteField
+power = a**b
+print 'a^b = {}'.format(power)
+
+#test power with b as integer
+power2 = a**4
+print 'a^4 = {}'.format(power2)
+
+print type(4)
+print type(a)
