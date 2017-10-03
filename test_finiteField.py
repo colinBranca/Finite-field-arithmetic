@@ -44,6 +44,3 @@ print 'a^b = {}'.format(power)
 #test power with b as integer
 power2 = a**4
 print 'a^4 = {}'.format(power2)
-
-print type(4)
-print type(a)
