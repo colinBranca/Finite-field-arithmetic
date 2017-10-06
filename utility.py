@@ -51,9 +51,6 @@ def sqrt(a):
 
 #miller rabin primality test
 def millerRabin(n):
-    #for n odd, at least 3/4 of intergers a, 1 < a < n are witnesses
-    #so we test k times, with k = ceil(n/4)
-    k = ceilDiv(n, 4)
     primesToTest = selectPrimesToTest(n)
     while k in primesToTest:
         if millerWitness(k, n):
