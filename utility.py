@@ -52,7 +52,7 @@ def sqrt(a):
 #miller rabin primality test
 def millerRabin(n):
     primesToTest = selectPrimesToTest(n)
-    while k in primesToTest:
+    for k in primesToTest:
         if millerWitness(k, n):
             return False
     return True
@@ -84,20 +84,24 @@ def findSD(n):
 #by A. Menezes, P. van Oorschot, and S. Vanstone, CRC Press, 1996.
 def selectPrimesToTest(n):
     primes = [2, 3]
-    if n > 1373653:
-        primes.append(5)
-        if n > 25326001:
-            primes.append(7)
-            if n > 3215031751:
-                primes.append(11)
-                if n > 2152302898747:
-                    primes.append(13)
-                    if n > 3474749660383:
-                        primes.append(17)
-                        if n > 341550071728321:
-                            primes.append(19)
-    return primes
+    if n < 1373653:
+        return primes
+    primes += [5]
+    if n < 25326001:
+        return primes
+    primes += [7]
+    if n < 3215031751:
+        return primes
+    primes += [11]
+    if n < 2152302898747:
+        return primes
+    primes += [13]
+    if n < 3474749660383:
+        return primes
+    primes += [17]
+    if n < 341550071728321:
+        return primes
 
-#return ceil(a/b)
-def ceilDiv(a, b):
-    return -(-a // b)
+    #otherwise return all primes smaller than 100
+    primes += [x for x in range(19, 100, 2) if isPrime(x)]
+    return primes
