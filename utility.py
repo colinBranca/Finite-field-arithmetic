@@ -54,12 +54,10 @@ def millerRabin(n):
     #for n odd, at least 3/4 of intergers a, 1 < a < n are witnesses
     #so we test k times, with k = ceil(n/4)
     k = ceilDiv(n, 4)
-    a = 2
-    while k > 0:
-        if millerWitness(a, n):
+    primesToTest = selectPrimesToTest(n)
+    while k in primesToTest:
+        if millerWitness(k, n):
             return False
-        k -= 1
-        a += 1
     return True
 
 #test if a is a witness for n
@@ -83,6 +81,25 @@ def findSD(n):
         s += 1
         d /= 2
     return (s, d)
+
+#return the primes to test in millerRabin
+#numbers are taken from: Handbook of Applied Cryptography (chapter 4)
+#by A. Menezes, P. van Oorschot, and S. Vanstone, CRC Press, 1996.
+def selectPrimesToTest(n):
+    primes = [2, 3]
+    if n > 1373653:
+        primes.append(5)
+        if n > 25326001:
+            primes.append(7)
+            if n > 3215031751:
+                primes.append(11)
+                if n > 2152302898747:
+                    primes.append(13)
+                    if n > 3474749660383:
+                        primes.append(17)
+                        if n > 341550071728321:
+                            primes.append(19)
+    return primes
 
 #return ceil(a/b)
 def ceilDiv(a, b):
