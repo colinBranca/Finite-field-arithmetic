@@ -60,7 +60,7 @@ def millerRabin(n):
 #test if a is a witness for n
 def millerWitness(a, n):
     (s, d) = findSD(n)
-    x = a**d % n
+    x = pow(a, d, n)
     if x == 1:
         return False
     while s > 0 :
