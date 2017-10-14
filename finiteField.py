@@ -24,6 +24,14 @@ def FiniteField(p):
         def __mul__(self, other):
             return Field(self.n * other.n)
 
+        #test if two numbers are equal mod p
+        def __eq__(self, other):
+            return self.n == other.n
+
+        #test inequality
+        def __ne__(self, other):
+            return self.n != other.n
+
         #return inverse (mod p) of input number
         def inverse(self):
             return Field(euclide(p, self.n))
@@ -57,7 +65,7 @@ def FiniteField(p):
 
         #return the field as a string
         def __str__(self) :
-            return '%d mod(%d)' % (self.n, self.p)
+            return str(self.n)
 
         #return the field as a string
         def __repr__(self) :
