@@ -26,7 +26,7 @@ complex numbers).
 class Field:
     """
     A base class for field elements that provides default operator overloading.
-    
+
     For example, subtraction is defined as addition of the additive inverse.
     Derived classes therefore only have to implement the following operations
     to support the complete operator set:
@@ -37,7 +37,7 @@ class Field:
     - __mul__(): Multiplication with the @c * operator; @c self is the
       left factor
     - multiplicative_inverse(): Reciprocal (the multiplicative inverse)
-    
+
     The following operations are implemented in terms of above operations using
     the field axioms:
     - __neq__(): Inequality testing with the @c != operator
@@ -51,12 +51,12 @@ class Field:
     - __truediv__(): Division with the @c / operator; @c self is the
       dividend (left element)
     - __rtruediv__(): Division with the @c / operator; @c self is the
-      divisor (right element) 
+      divisor (right element)
     - __pow__(): Exponentiation with integers
     """
-    
-    #- Template Operations ---------------------------------------------------- 
-    
+
+    #- Template Operations ----------------------------------------------------
+
     def __neq__(self, other):
         """
         Test whether another element @p other is different from @p self; return
@@ -68,7 +68,7 @@ class Field:
         @endcode
         """
         return not self.__eq__( other )
-    
+
     def __radd__(self, other):
         """
         Return the sum of @p self and @p other.  The infix operator @c + calls
@@ -79,7 +79,7 @@ class Field:
         @endcode
         """
         return self.__add__( other )
-    
+
     def __sub__(self, other):
         """
         Return the difference of @p self and @p other.  The infix operator @c -
@@ -89,7 +89,7 @@ class Field:
         @endcode
         """
         return self.__add__( -other )
-    
+
     def __rsub__(self, other):
         """
         Return the difference of @p other and @p self.  The infix operator @c -
@@ -101,7 +101,7 @@ class Field:
         """
         # other - self == -(self - other)
         return -self.__sub__( other )
-    
+
     def __rmul__(self, other):
         """
         Return the product of @p self and @p other.  The infix operator @c *
@@ -109,10 +109,10 @@ class Field:
         returns @c NotImplemented.  For example:
         @code
         result = other * self
-        @endcode 
+        @endcode
         """
         return self.__mul__( other )
-    
+
     def __truediv__(self, other):
         """
         Return the quotient of @p self and @p other.  The infix operator @c /
@@ -120,7 +120,7 @@ class Field:
         @code
         result = self / other
         @endcode
-        
+
         @exception ZeroDivisionError   if @p other is zero.
         @exception TypeError           if @p other lacks the
                                        multiplicative_inverse() method and
@@ -128,11 +128,11 @@ class Field:
         """
         if not other:
             raise ZeroDivisionError
-        
+
         try:
             other = self.__class__(other)
             return self.__mul__( other.multiplicative_inverse() )
-        
+
         except TypeError:
             return NotImplemented
 
@@ -144,37 +144,35 @@ class Field:
         @code
         result = other / self
         @endcode
-        
+
         @exception ZeroDivisionError   if @p self is zero.
         """
         return self.multiplicative_inverse() * other
 
     def __pow__(self, n):
         """
-        Return @p self taken to the @p n-th power.  The infix operator @c **
-        calls this method; for example:
-        @code
-        result = self ** n
-        @endcode
-        
-        @note  The implementation uses the most naive by-the-book method for
-               exponentiation: the element is multiplied @p n-1 times with
-               itself.  This is slow (and might skin your cat!).  However, the
-               purpose of this code is to be easy to understand, not fast. 
-        
-        @param n   The exponent; it is expected to be a non-negative integer
-                   type.  Negative integers and floats are unsupported.
-        """
-        # This only makes sense for integer arguments.
-        result = self
-        for i in range(1, int(n)):
-            result = result * self
-        
-        return result
+       Return @p self taken to the @p n-th power.  The infix operator @c **
+       calls this method; for example:
+       @code
+       result = self ** n
+       @endcode
+
+       @param n   The exponent; it is expected to be a non-negative integer
+                  type.  Negative integers and floats are unsupported.
+       """
+       # This only makes sense for integer arguments.
+       if int(n) == 0:
+           return self.one()
+
+       result = self
+       for i in reversed(range(n.bit_length() - 1)):
+           result = result * result
+           if n & (1 << i):
+               result = result * self
 
 
     #- Base Operations (Defined in Derived Classes) ---------------------------
-    
+
     def __bool__(self):
         """
         Test whether the element is non-zero: return @c True if, and only if,
@@ -185,12 +183,12 @@ class Field:
         if x:
             do_something()
         @endcode
-        
+
         @exception NotImplementedError if this method is called; subclasses
                                        must implement this operation.
         """
         raise NotImplementedError
-    
+
     def __eq__(self, other):
         """
         Test whether another element @p other is equal to @p self; return
@@ -200,12 +198,12 @@ class Field:
         if self == other:
             do_something()
         @endcode
-        
+
         @exception NotImplementedError if this method is called; subclasses
                                        must implement this operation.
         """
         raise NotImplementedError
-    
+
     def __add__(self, other):
         """
         Return the sum of @p self and @p other.  The infix operator @c + calls
@@ -213,12 +211,12 @@ class Field:
         @code
         result = self + other
         @endcode
-        
+
         @exception NotImplementedError if this method is called; subclasses
                                        must implement this operation.
         """
         raise NotImplementedError
-    
+
     def __neg__(self):
         """
         Return the additive inverse of @p self.  The unary minus operator @c -x
@@ -231,7 +229,7 @@ class Field:
                                        must implement this operation.
         """
         raise NotImplementedError
-    
+
     def __mul__(self, other):
         """
         Return the product of @p self and @p other.  The infix operator @c + calls
@@ -239,12 +237,12 @@ class Field:
         @code
         result = self * other
         @endcode
-        
+
         @exception NotImplementedError if this method is called; subclasses
                                        must implement this operation.
         """
         raise NotImplementedError
-    
+
     def multiplicative_inverse(self):
         """
         Return the multiplicative inverse of @p self.
@@ -253,4 +251,3 @@ class Field:
                                        must implement this operation.
         """
         raise NotImplementedError
- 
