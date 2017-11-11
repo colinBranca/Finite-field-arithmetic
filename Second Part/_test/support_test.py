@@ -17,13 +17,13 @@
 
 import unittest
 
-#- Primes --------------------------------------------------------------------- 
+#- Primes ---------------------------------------------------------------------
 
 from support.primes import primes_range
 
 class PrimesRangeTest(unittest.TestCase):
     """Test cases for the function @c support.primes.primes_range"""
-    
+
     def test_results(self):
         """Sample results"""
         self.assert_( list(primes_range(1, 10)) == [2, 3, 5, 7] )
@@ -35,11 +35,11 @@ class PrimesRangeTest(unittest.TestCase):
     def test_upper_bound(self):
         """Exclusive upper bound"""
         self.assert_( list(primes_range(1, 7)) == [2, 3, 5] )
-    
+
     def test_empty(self):
         """Empty primes interval"""
         self.assert_( not primes_range(3, 2) )
-         
+
     def test_iterable(self):
         """Iterable return type"""
         self.assert_( [2, 3, 5] == [ p for p in primes_range(2, 6) ] )
@@ -49,7 +49,7 @@ from support.primes import inverse_primorial
 
 class InversePrimorialTest(unittest.TestCase):
     """Test cases for the function @c support.primes.inverse_primorial"""
-    
+
     def test_results(self):
         """Sample results"""
         self.assert_( inverse_primorial(30) == 5 )
@@ -59,8 +59,19 @@ class InversePrimorialTest(unittest.TestCase):
         """Empty (too small) input"""
         self.assert_( inverse_primorial(-1) == 2 )
 
+from support.primes import isPrime
 
-#- Quotients ------------------------------------------------------------------ 
+class isPrimeTest(unittest.Testcase):
+    def test_results(self):
+        """Sample results"""
+        self.assert_(isPrime(71) == True)
+        self.assert_(isPrime(781) == False)
+        self.assert_(isPrime(32416190071) == True)
+
+
+
+
+#- Quotients ------------------------------------------------------------------
 
 from rings.integers.naive import Integers
 from rings.quotients.naive import QuotientRing
@@ -75,35 +86,35 @@ class CongruenceEquationTest(unittest.TestCase):
         Z3 = QuotientRing( Integers, 3 )
         Z5 = QuotientRing( Integers, 5 )
         self._remainders = [ Z3(2), Z5(1) ]
-    
+
     def test_result_type(self):
         """Solution is congruence"""
         solution = solve_congruence_equations( self._remainders )
-        self.assert_( hasattr( solution, "remainder" ) ) 
-        self.assert_( hasattr( solution, "modulus" ) ) 
+        self.assert_( hasattr( solution, "remainder" ) )
+        self.assert_( hasattr( solution, "modulus" ) )
 
     def test_result_modulus(self):
         """Sample solution: modulus"""
         solution = solve_congruence_equations( self._remainders )
-        self.assert_( solution.modulus() == 15 ) 
+        self.assert_( solution.modulus() == 15 )
 
     def test_result_remainder(self):
         """Sample solution: remainder"""
         solution = solve_congruence_equations( self._remainders )
         self.assert_( solution.remainder() == 11 )
-    
+
     def test_empty_equations(self):
         """Empty set of congruence equations"""
         def f():
             solve_congruence_equations( [] )
         self.assertRaises( ValueError , f )
-    
+
 
 from support.quotients import inverse_modulo
 
 class InverseModuloTest(unittest.TestCase):
     """Test cases for the computation of inverses of quotient classes"""
-    
+
     def test_result(self):
         """Sample results"""
         self.assert_( (inverse_modulo(3, 5) - 2) % 5 == 0 )
@@ -122,7 +133,7 @@ class InverseModuloTest(unittest.TestCase):
         self.assertRaises( ZeroDivisionError, f )
 
 
-#- Rings ---------------------------------------------------------------------- 
+#- Rings ----------------------------------------------------------------------
 
 from fields.finite.naive import FiniteField
 from rings.polynomials.naive import Polynomials
@@ -130,31 +141,31 @@ from support.rings import extended_euclidean_algorithm as eeuc
 
 class ExtendedEuclideanAlgorithmTest(unittest.TestCase):
     """Test cases for the extended Euclidean algorithm"""
-    
+
     def test_integer_gcd(self):
         """Integer GCD"""
         self.assert_( eeuc( 17, 25 )[2] == 1 )
         self.assert_( eeuc( 24, 27 )[2] == 3 )
-    
+
     def test_integer_linear_combination(self):
         """Integer GCD as linear combination"""
         x, y, d = eeuc( 17, 25 )
         self.assert_( x*17 + y*25 == d )
-        
+
     def test_polynomial_gcd(self):
         """Polynomial GCD"""
         # gcd( (x+1)^2, (x+1)(x-1) ) == (x+1)
         R = Polynomials( FiniteField(7) )
         gcd = eeuc( R(1, 2, 1), R(-1, 0, 1) )[2]   # Make monic
         self.assert_( gcd // gcd.leading_coefficient() == R(1, 1) )
-        
+
     def test_polynomial_linear_combination(self):
         """Polynomial GCD as linear combination"""
         R = Polynomials( FiniteField(7) )
         p, q = R(1, 3, 1, 2, 4), R(1, 0, 1, 1)
         x, y, d = eeuc( p, q )
         self.assert_( x*p + y*q == d )
-        
+
     def test_zero(self):
         """GCD of zero"""
         def f():
@@ -163,7 +174,7 @@ class ExtendedEuclideanAlgorithmTest(unittest.TestCase):
             eeuc( 0, 3 )
         self.assertRaises( ZeroDivisionError, f )
         self.assertRaises( ZeroDivisionError, g )
-        
+
 
 from fields.finite.naive import FiniteField
 from rings.polynomials.naive import Polynomials
@@ -171,36 +182,36 @@ from support.rings import gcd
 
 class GcdTest(unittest.TestCase):
     """Test cases for the gcd function"""
-    
+
     def test_integer_gcd(self):
         """Integer GCD"""
         self.assert_( gcd( 17, 25 ) == 1 )
         self.assert_( gcd( 24, 27 ) == 3 )
-    
+
     def test_integer_linear_combination(self):
         """Integer GCD as linear combination"""
         x, y, d = eeuc( 17, 25 )
         self.assert_( x*17 + y*25 == d )
-        
+
     def test_polynomial_gcd(self):
         """Polynomial GCD"""
         # gcd( (x+1)^2, (x+1)(x-1) ) == (x+1)
         R = Polynomials( FiniteField(7) )
         gcd = eeuc( R(1, 2, 1), R(-1, 0, 1) )[2]   # Make monic
         self.assert_( gcd // gcd.leading_coefficient() == R(1, 1) )
-        
+
     def test_polynomial_linear_combination(self):
         """Polynomial GCD as linear combination"""
         R = Polynomials( FiniteField(7) )
         p, q = R(1, 3, 1, 2, 4), R(1, 0, 1, 1)
         x, y, d = eeuc( p, q )
         self.assert_( x*p + y*q == d )
-        
+
     def test_polynomial_gcd_relatively_prime(self):
         """GCD of relatively prime elements"""
         R = Polynomials( FiniteField(7) )
         self.assert_( gcd( R(-1, 0, 1), R(0, 1) ).degree() == 0 )
-        
+
     def test_zero(self):
         """GCD of zero"""
         def f():
@@ -223,7 +234,7 @@ for test_class in [
                InverseModuloTest,
                ExtendedEuclideanAlgorithmTest,
            ]:
-    all_suites.append( unittest.TestLoader().loadTestsFromTestCase( test_class ) ) 
+    all_suites.append( unittest.TestLoader().loadTestsFromTestCase( test_class ) )
 
 
 if __name__ == "__main__":
