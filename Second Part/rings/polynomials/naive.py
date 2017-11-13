@@ -36,7 +36,7 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
     A ring of polynomials in one indeterminate with coefficients from the
     provided field; the polynomials support infix notation for ring operations,
     as well as mixed argument types.
-    
+
     This is a template class that must be instantiated with the coefficient
     field.  Use it, for example, as follows:
     @code
@@ -52,36 +52,36 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
     x = GF7(0, 1)
     x**3 - 2*x + 1 == GF7x(1, -2, 0, 1)
     @endcode
-    
+
     The polynomial ring operations are defined in terms of the coefficient
     field operations.  For everything to work as expected, the template
     argument must be a class whose instances implement the fields.Field
     interface.  Typically, this will be some specialization of
     fields.finite.naive.FiniteField.
-    
+
     Rings, however, also work as a source of coefficients.  Only division
-    requires that the leading coefficient is a unit. 
+    requires that the leading coefficient is a unit.
 
     @note  The implementation emphasizes simplicity over speed; it omits
            possible optimizations.
-    
+
     @note  The class uses the operand_casting() decorator: @c other operands in
            binary operations will first be treated as Polynomial elements.
            If that fails, the operation will be repeated after @p other was fed
            to the constructor __init__().  If that fails, too, then the
            operation returns @c NotImplemented (so that @p other.__rop__()
            might be invoked).
-    
+
     @see   For example, Robinson, Derek J. S.,
            "An Introduction to Abstract Algebra", p. 100.
-    """    
+    """
 
-    #- Instance Methods ----------------------------------------------------------- 
-    
+    #- Instance Methods -----------------------------------------------------------
+
     def __init__(self, element_description, *further_coefficients):
         """
         Create a new polynomial from the given @p element_description.
-        
+
         @param element_description
             Valid input values are:
             - A Polynomial over the same field: then the polynomial is copied
@@ -94,10 +94,10 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
             - Any number of arguments that can be interpreted as coefficient
               field elements; they will be combined
               into the list of coefficients
-        
+
         @param further_coefficients    The list of variable positional
                                        arguments.
-        
+
         For example, there are several ways to construct the polynomial
         @f$ x^3 + 4x^2 - 3x + 2@f$:
         @code
@@ -109,7 +109,7 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
         # Copy
         p1 = R( p2 )
         @endcode
-        
+
         @note  Leading zeros will be ignored.
         """
         # List of coefficients is in ascending order without leading zeros.
@@ -117,19 +117,19 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
         if isinstance(element_description, self.__class__):
             # A reference suffices because objects are immutable
             self.__coefficients = element_description.__coefficients
-        
+
         else:
             if type(element_description) in [ list, tuple ]:
                 coefficients = element_description
             else:
-                coefficients = [ element_description ] + list(further_coefficients)  
+                coefficients = [ element_description ] + list(further_coefficients)
 
             F = self._coefficient_field
             self.__coefficients = [ F(c) for c in coefficients ]
 
         self.__remove_leading_zeros()
 
-    
+
     def coefficients(self):
         """
         Return a copy of the list of coefficients.  The list is in ascending
@@ -154,7 +154,7 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
     def degree(self):
         """
         Return the degree of the polynomial.
-        
+
         @note  The zero polynomial has degree @f$ -\infty @f$; however, this
                implementation returns the number @f$ -2^{30} @f$ to avoid
                special constructions that side-step Python's @c int objects.
@@ -166,13 +166,13 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
             return -( 2**30 )
         return len( self.__coefficients ) - 1
 
-    
+
     def __bool__(self):
         """
         Test whether the polynomial is non-zero: return @c True if, and only
         if, at least one coefficient is non-zero. Return @c False if all
         coefficients are zero.
-        
+
         Implicit conversions to boolean (truth) values use this method, for
         example when @c x is an element of Polynomials:
         @code
@@ -188,13 +188,13 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
         Test whether another polynomial @p other is equal to @p self; return
         @c True if that is the case.  The infix operator @c == calls
         this method.
-        
+
         Two polynomials are equal if, and only if, all their coefficients are
-        equal. 
+        equal.
         """
         if self.degree() != other.degree():
             return False
-        
+
         # zip() is OK because we have identical length
         for x, y in zip(self.__coefficients, other.__coefficients):
             if x != y:
@@ -207,7 +207,7 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
         """
         Return the sum of @p self and @p other. The infix operator @c + calls
         this method.
-        
+
         Polynomials add coefficient-wise without carrying: the sum of two
         polynomials @f$ \sum_{k} a_{k}x^{k} @f$ and
         @f$ \sum_{k} b_{k}x^{k} @f$ is the polynomial
@@ -221,25 +221,25 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
                                 )
         coefficient_sums = [ x + y for x, y in coefficient_pairs ]
         return self.__class__( coefficient_sums )
-    
-    
+
+
     def __neg__(self):
         """
         Return the additive inverse (the negative) of @p self.
-        
+
         A polynomial is negated by negating its coefficients: the additive
         inverse of @f$ \sum_{k} a_{k}x^{k} @f$ is @f$ \sum_{k} -a_{k}x^{k} @f$.
         """
         return self.__class__(
                     [ -c for c in self.__coefficients ]
                 )
-    
-    
+
+
     def __mul__(self, other):
         """
         Return the product of @p self and @p other. The infix operator @c *
         calls this method.
-        
+
         Two polynomials are multiplied through convolution of their
         coefficients: for polynomials @f$ \sum_{k} a_{k}x^{k} @f$ and
         @f$ \sum_{k} b_{k}x^{k} @f$, their product is the polynomial
@@ -249,18 +249,18 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
         zero = self._coefficient_field.zero()
         # Add 2 because degrees count from 0.
         result = [ zero ] * (self.degree() + other.degree() + 2)
-        
+
         for i, x in enumerate(self.__coefficients):
             for j, y in enumerate(other.__coefficients):
-                result[i + j]  +=  x * y 
-        
+                result[i + j]  +=  x * y
+
         return self.__class__( result )
 
 
     def __divmod__(self, other):
         """
         Return the quotient and remainder of @p self divided by @p other.
-        
+
         The built-in method @c divmod() calls this method.  For the returned
         values @c quotient and @c remainder, we have
         @code
@@ -271,35 +271,35 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
         dividend = self.__coefficients[:]
         divisor = other.__coefficients[:]
         n = other.degree()
-        
+
         zero = self._coefficient_field.zero()
         quotient = [ zero ] * (self.degree() - n + 1)
-        
+
         for k in reversed(range( 0, len(quotient) )):
             quotient[k] = dividend[n + k] / divisor[n]
             for j in range(k, n + k):
                 dividend[j] -= quotient[k] * divisor[j - k]
-    
+
         remainder = dividend[ 0 : n ]
-        
+
         return self.__class__( quotient ), \
                 self.__class__( remainder )
-    
-    
+
+
     def __call__(self, point):
         """
         Return the polynomial function's value at @p point.
-        
+
         This method evaluates the polynomial by replacing the indeterminate
         with @p point and summing the powers: for a polynomial
         @f$ p(x) = \sum_{k} a_{k}x^{k} @f$, the value at @f$ c @f$ is
         @f$ p(c) = \sum_{k} a_{k}c^{k} @f$.
         """
         return sum( [ c * point**i for i, c in enumerate(self.__coefficients) ] )
-    
-    
-    #- Class Methods----------------------------------------------------------- 
-    
+
+
+    #- Class Methods-----------------------------------------------------------
+
     @classmethod
     def coefficient_field(cls):
         """
@@ -315,8 +315,8 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
         polynomial.
         """
         return cls( cls._coefficient_field.zero() )
-    
-    
+
+
     @classmethod
     def one(cls):
         """
@@ -326,12 +326,12 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
         return cls( cls._coefficient_field.one() )
 
 
-    #- Auxiliary Functions ---------------------------------------------------- 
+    #- Auxiliary Functions ----------------------------------------------------
 
     def __remove_leading_zeros(self):
         """
         Remove all leading zeros from the list of coefficients.  This might
-        empty the list completely. 
+        empty the list completely.
         """
         while len( self.__coefficients ) > 0 \
                 and not self.__coefficients[-1]:
@@ -349,3 +349,25 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
         padded_list1 = list1 + ( [padding_element] * (max_length - len(list1)) )
         padded_list2 = list2 + ( [padding_element] * (max_length - len(list2)) )
         return zip( padded_list1, padded_list2 )
+
+    def is_irreductible(self):
+        """
+        Test if the polynomial is irreductible.
+        """
+        print("pute")
+        print(self)
+        print("pute")
+        if(self.degree() <= 1) :
+            return True
+        F = self._coefficient_field
+        print(F)
+        if self(0) == 0:
+            return False
+        i = 1
+        print(type(F(0)))
+        return True
+        while(F(i) != F(0)):
+            print(F(i) == F(0))
+            if F(self(i)) == 0:
+                return False
+        return True
