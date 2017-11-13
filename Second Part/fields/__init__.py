@@ -150,7 +150,7 @@ class Field:
         return self.multiplicative_inverse() * other
 
     def __pow__(self, n):
-        """
+       """
        Return @p self taken to the @p n-th power.  The infix operator @c **
        calls this method; for example:
        @code
