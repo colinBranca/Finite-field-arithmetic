@@ -20,6 +20,7 @@ Ring related classes and functions (ring as in integers).
 
 @package   rings
 @author    Peter Dinges <pdinges@acm.org>
+@author    Colin Branca <colin.branca@epfl.ch>
 """
 
 class CommutativeRing:

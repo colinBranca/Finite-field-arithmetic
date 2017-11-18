@@ -21,6 +21,7 @@ complex numbers).
 
 @package   fields
 @author    Peter Dinges <pdinges@acm.org>
+@author    Colin Branca <colin.branca@epfl.ch>
 """
 
 class Field:
