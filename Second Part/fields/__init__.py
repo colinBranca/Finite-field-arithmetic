@@ -150,25 +150,24 @@ class Field:
         return self.multiplicative_inverse() * other
 
     def __pow__(self, n):
-       """
-       Return @p self taken to the @p n-th power.  The infix operator @c **
-       calls this method; for example:
-       @code
-       result = self ** n
-       @endcode
+        """
+        Return @p self taken to the @p n-th power.  The infix operator @c **
+        calls this method; for example:
+        @code
+        result = self ** n
+        @endcode
 
-       @param n   The exponent; it is expected to be a non-negative integer
-                  type.  Negative integers and floats are unsupported.
-       """
-       # This only makes sense for integer arguments.
-       if int(n) == 0:
-           return self.one()
-
-       result = self
-       for i in reversed(range(n.bit_length() - 1)):
-           result = result * result
-           if n & (1 << i):
-               result = result * self
+        @param n   The exponent; it is expected to be a non-negative integer
+                   type.  Negative integers and floats are unsupported.
+        """
+        if n == 0:
+            return self.one()
+        elif n % 2 == 0:
+            halfPower = self ** (n/2)
+            return halfPower * halfPower
+        else:
+            halfPower = self ** ((n-1)/2)
+            return self * halfPower * halfPower
 
 
     #- Base Operations (Defined in Derived Classes) ---------------------------
