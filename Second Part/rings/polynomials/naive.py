@@ -20,6 +20,7 @@ A naive implementation of polynomial rings with coefficients from a field.
 
 @package   rings.polynomials.naive
 @author    Peter Dinges <pdinges@acm.org>
+@author    Colin Branca <colin.branca@epfl.ch>
 """
 
 from rings import CommutativeRing
@@ -27,6 +28,7 @@ from rings import CommutativeRing
 from support.types import template
 from support.operators import operand_casting
 from support.profiling import profiling_name, local_method_names
+from support.rings import gcd
 
 @operand_casting
 @local_method_names
@@ -350,24 +352,19 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
         padded_list2 = list2 + ( [padding_element] * (max_length - len(list2)) )
         return zip( padded_list1, padded_list2 )
 
-    def is_irreductible(self):
+    def is_irreducible(self):
         """
         Test if the polynomial is irreductible.
         """
-        print("pute")
-        print(self)
-        print("pute")
-        if(self.degree() <= 1) :
-            return True
-        F = self._coefficient_field
-        print(F)
-        if self(0) == 0:
-            return False
-        i = 1
-        print(type(F(0)))
-        return True
-        while(F(i) != F(0)):
-            print(F(i) == F(0))
-            if F(self(i)) == 0:
+        l = -(-self.degree() // 2)
+        p = self._coefficient_field._modulus
+        for i in range(1, l+1):
+            print(i)
+            polynomial = [0, -1]
+            for j in range(2, p**i):
+                polynomial.append(0)
+            polynomial.append(1)
+            F = self.__class__(polynomial)
+            if gcd(self, F) != 1:
                 return False
         return True
