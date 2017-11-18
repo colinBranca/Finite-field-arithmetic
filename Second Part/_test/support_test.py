@@ -61,7 +61,7 @@ class InversePrimorialTest(unittest.TestCase):
 
 from support.primes import isPrime
 
-class isPrimeTest(unittest.Testcase):
+class isPrimeTest(unittest.TestCase):
     def test_results(self):
         """Sample results"""
         self.assert_(isPrime(71) == True)
