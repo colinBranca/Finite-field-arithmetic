@@ -30,6 +30,9 @@ from support.operators import operand_casting
 from support.profiling import profiling_name, local_method_names
 from support.rings import gcd
 
+from random import randint #for cantor_zassenhaus
+
+
 @operand_casting
 @local_method_names
 @profiling_name( "{_coefficient_field}[x]")
@@ -356,10 +359,11 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
         """
         Test if the polynomial is irreductible.
         """
+        if(self.degree() <= 1):
+            return True
         l = -(-self.degree() // 2)
         p = self._coefficient_field._modulus
         for i in range(1, l+1):
-            print(i)
             polynomial = [0, -1]
             for j in range(2, p**i):
                 polynomial.append(0)
@@ -368,3 +372,80 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
             if gcd(self, F) != 1:
                 return False
         return True
+
+    def factorize(self):
+        """
+        factorize polynomial into product of irreducible polynomials
+
+        @return     List of irreducible Polynomials
+
+        @note       We use cantor zassenhaus algorithm to do the factorization
+        """
+        factors = []
+        if self.is_irreducible():
+            factors.append(self)
+        else:
+            #if polynomial is squarefree
+            polys = self.distinct_degree_factorization()
+            for (g, d) in polys:
+                if g.is_irreducible():
+                    factors.append(g)
+                else:
+                    g_factors = g.cantor_zassenhaus(d)
+                    factors.extend(g_factors)
+        return factors
+
+    def distinct_degree_factorization(self):
+        """
+        split a square-free polynomial into a product of polynomials whose irreducible factors all have the same degree
+
+        @return     The set of all pairs (g, d), such that
+                    f has an irreducible factor of degree d and
+                    g is the product of all monic irreducible factors of f of degree d.
+        """
+        i = 1
+        S = []
+        f = self
+        p = self._coefficient_field._modulus
+        while(f.degree() >= 2*i):
+            polynomial = [0, -1]
+            for j in range(2, p**i):
+                polynomial.append(0)
+            polynomial.append(1)
+            F = self.__class__(polynomial)
+            g = gcd(f, F)
+            if g != 1:
+                S.append((g, i))
+                (f, remainder) = divmod(f, g)
+            i = i + 1
+        if f.degree() != 0:
+            S.append((f, f.degree()))
+        if not S:
+            S.append(f,1)
+        return S
+
+    def cantor_zassenhaus(self, d):
+        """
+        Cantor-Zassenhaus algorithm implementation
+
+        @return     The set of monic irreducible factors of input polynomial
+        """
+        r = self.degree()/d
+        factors = [self]
+        p = self._coefficient_field._modulus
+        h = []
+        for i in range(0, self.degree()):
+            h.append(randint(0, p-1))
+        H = self.__class__(h)
+        power = ((p**d - 1)) / 2 % (p-1)
+        g = H**power % self
+
+        #TODO:
+        #refactor code, factors is not updated in gen so it don't loop enough...
+        gen = (x for x in factors if x.degree() > d)
+        for u in gen:
+            gcd_temp = gcd(g, u)
+            if gcd_temp != 1 and gcd_temp != u:
+                factors.remove(u)
+                factors.extend((gcd_temp, u/gcd_temp))
+        return factors
