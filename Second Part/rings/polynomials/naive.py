@@ -31,6 +31,7 @@ from support.profiling import profiling_name, local_method_names
 from support.rings import gcd
 
 from random import randint #for cantor_zassenhaus
+from math import ceil #for is_irreducible
 
 
 @operand_casting
@@ -361,15 +362,14 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
         """
         if(self.degree() <= 1):
             return True
-        l = -(-self.degree() // 2)
+
+        l = ceil(self.degree()/2)
         p = self._coefficient_field._modulus
+        x = self.__class__([0, 1])
+        xp = x
         for i in range(1, l+1):
-            polynomial = [0, -1]
-            for j in range(2, p**i):
-                polynomial.append(0)
-            polynomial.append(1)
-            F = self.__class__(polynomial)
-            if gcd(self, F) != 1:
+            xp = xp.power_mod(p, self)
+            if gcd(self, xp-x).degree() != 0:
                 return False
         return True
 
@@ -381,18 +381,27 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
 
         @note       We use cantor zassenhaus algorithm to do the factorization
         """
+        f = self.make_monic()
         factors = []
-        if self.is_irreducible():
-            factors.append(self)
+        if f.is_irreducible():
+            factors.append(f)
         else:
-            #if polynomial is squarefree
-            polys = self.distinct_degree_factorization()
-            for (g, d) in polys:
-                if g.is_irreducible():
-                    factors.append(g)
-                else:
-                    g_factors = g.cantor_zassenhaus(d)
-                    factors.extend(g_factors)
+            if f.is_square_free():
+                polys = f.distinct_degree_factorization()
+                for (g, d) in polys:
+                    if g.is_irreducible():
+                        factors.append(g)
+                    else:
+                        g_factors = g.cantor_zassenhaus(d)
+                        factors.extend(g_factors)
+            else:
+                fPrime = f.derive()
+                (g, remainder) = divmod(f, gcd(f, fPrime))
+                g_factors = g.factorize()
+                for fact in g_factors:
+                    while(gcd(f, fact).degree() != 0):
+                        factors.append(fact)
+                        (f, remainder) = divmod(f, fact)
         return factors
 
     def distinct_degree_factorization(self):
@@ -407,14 +416,16 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
         S = []
         f = self
         p = self._coefficient_field._modulus
-        while(f.degree() >= 2*i):
-            polynomial = [0, -1]
-            for j in range(2, p**i):
-                polynomial.append(0)
-            polynomial.append(1)
-            F = self.__class__(polynomial)
-            g = gcd(f, F)
-            if g != 1:
+        x = self.__class__([0, 1])
+        xp = x
+        while(f.degree() > 0):
+            xp = xp.power_mod(p, f)
+            print("degree of xp = " + repr(xp.degree()))
+            g = gcd(f, xp - x)
+            if g.degree() != 0:
+                print("degree of f = " + repr(f.degree()))
+                print("i = " + repr(i))
+                print("degree of g = " + repr(g.degree()))
                 S.append((g, i))
                 (f, remainder) = divmod(f, g)
             i = i + 1
@@ -439,13 +450,46 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
         H = self.__class__(h)
         power = ((p**d - 1)) / 2 % (p-1)
         g = H**power % self
-
-        #TODO:
-        #refactor code, factors is not updated in gen so it don't loop enough...
-        gen = (x for x in factors if x.degree() > d)
-        for u in gen:
-            gcd_temp = gcd(g, u)
-            if gcd_temp != 1 and gcd_temp != u:
-                factors.remove(u)
-                factors.extend((gcd_temp, u/gcd_temp))
+        while(not all_irreducible(factors)):
+            gen = (x for x in factors if x.degree() > d)
+            for u in gen:
+                gcd_temp = gcd(g, u)
+                print(gcd_temp)
+                if gcd_temp.degree() != 1 and gcd_temp != u:
+                    factors.remove(u)
+                    factors.extend((gcd_temp, u/gcd_temp))
         return factors
+
+    def is_square_free(self):
+        return gcd(self, self.derive()) == 1
+
+    def derive(self):
+        fPrime = []
+        f = self.__coefficients
+        for i in range(1, len(f)):
+            fPrime.append(f[i]*i)
+        return self.__class__(fPrime)
+
+    def all_irreducible(polynomials):
+        for poly in polynomials:
+            if not poly.is_irreducible():
+                return False
+            return True
+
+    def power_mod(self, n, other):
+        if n == 1:
+            return self % other
+        res = self.power_mod(n//2, other)
+        res = res * res % other
+        if(n & 1) == 1 :
+            res = res * self % other
+        return res
+
+    def make_monic(self):
+        a = self.leading_coefficient()
+        if a == 1:
+            return self
+        monicPoly = []
+        for x in self.__coefficients:
+            monicPoly.append(x/a)
+        return self.__class__(monicPoly)
