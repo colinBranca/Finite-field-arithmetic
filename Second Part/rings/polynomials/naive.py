@@ -30,7 +30,7 @@ from support.operators import operand_casting
 from support.profiling import profiling_name, local_method_names
 from support.rings import gcd
 
-from random import randint #for cantor_zassenhaus
+from random import randrange,randint #for cantor_zassenhaus
 from math import ceil #for is_irreducible
 
 
@@ -291,6 +291,41 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
         return self.__class__( quotient ), \
                 self.__class__( remainder )
 
+    def __pow__(self, n, modulo=None):
+        """
+        Return @p self taken to the @p n-th power.  The infix operator @c **
+        calls this method; for example:
+        @code
+        result = self ** n % modulo
+        @endcode
+
+        @param n   The exponent; it is expected to be a non-negative integer
+                   type.  Negative integers and floats are unsupported.
+
+        @param modulo   It is expected to be polynomial created by the same
+                        class as self.
+        """
+        # This only makes sense for integer arguments.
+        if int(n) == 0:
+            return self.one()
+
+        # TODO: Check if modulo is of the appropriate type
+        if modulo:
+            result = self % modulo
+            for i in reversed(range(n.bit_length() - 1)):
+                result = result * result
+                result = result % modulo
+                if n & (1 << i):
+                    result = result * self
+                    result = result % modulo
+        else:
+            result = self
+            for i in reversed(range(n.bit_length() - 1)):
+                result = result * result
+                if n & (1 << i):
+                    result = result * self
+
+        return result
 
     def __call__(self, point):
         """
@@ -303,6 +338,12 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
         """
         return sum( [ c * point**i for i, c in enumerate(self.__coefficients) ] )
 
+    def __str__(self):
+        """
+        Returns the string of the list of coefficients.
+        """
+        return str([str(c) for c in self.__coefficients])
+        #return '[' + ','.join([c for c in self.__coefficients]) = ']'
 
     #- Class Methods-----------------------------------------------------------
 
@@ -463,12 +504,46 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
     def is_square_free(self):
         return gcd(self, self.derive()) == 1
 
-    def derive(self):
-        fPrime = []
-        f = self.__coefficients
-        for i in range(1, len(f)):
-            fPrime.append(f[i]*i)
-        return self.__class__(fPrime)
+    def derivative(self):
+        """
+        Computes the derivative of self
+        """
+        if self.degree() == 0:
+            return self.zero()
+
+        f_prime = []
+        for i, c in enumerate(self.__coefficients[1:]):
+            f_prime.append(c * (i + 1))
+
+        return self.__class__(f_prime)
+
+    def monic(self):
+        """
+        Makes self into monic polynomial and returns it as a new instance
+        """
+        lc = self.leading_coefficient()
+        if lc == self._coefficient_field.one():
+            return self.__class__(self.__coefficients[:])
+
+        return self.__class__(self * lc.multiplicative_inverse())
+
+    @classmethod
+    def random_element(cls, n):
+        """
+        Return a random polynomial of degree n
+        """
+        coeffs = [randrange(0, cls._coefficient_field._modulus) for _ in range(n)]
+
+        """ Make sure the leading coefficient is not zero,
+            so the generated polynomial has a degree exactly n """
+        lc = randrange(0, cls._coefficient_field._modulus)
+        while lc == cls._coefficient_field.zero():
+            lc = randrange(0, cls._coefficient_field._modulus)
+
+        coeffs.append(lc)
+
+        return cls(coeffs)
+
 
     def all_irreducible(polynomials):
         for poly in polynomials:
@@ -476,20 +551,3 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
                 return False
             return True
 
-    def power_mod(self, n, other):
-        if n == 1:
-            return self % other
-        res = self.power_mod(n//2, other)
-        res = res * res % other
-        if(n & 1) == 1 :
-            res = res * self % other
-        return res
-
-    def make_monic(self):
-        a = self.leading_coefficient()
-        if a == 1:
-            return self
-        monicPoly = []
-        for x in self.__coefficients:
-            monicPoly.append(x/a)
-        return self.__class__(monicPoly)

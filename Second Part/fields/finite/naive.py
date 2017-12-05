@@ -32,7 +32,7 @@ class FiniteField(QuotientRing, _ring=Integers):
     The finite field with @f$ p^k @f$ elements; the field operations on the
     element instances support the natural infix syntax and allow mixing in
     integer arguments.
-    
+
     This is a template class that must be instantiated with the field size.
     For example:
     @code
@@ -43,22 +43,28 @@ class FiniteField(QuotientRing, _ring=Integers):
     z = x**2 + 2*y - x/y   # z == 15 (mod 23); note that -2*11 == 1 (mod 23)
     type(x) is GF23        # This is True
     @endcode
-    
+
     The implementation is held as simple as possible. Its focus lies on ease
     of understanding, not on performance. Thus it is badly suited for larger
     computations. The template inherits from
     @c rings.quotients.naive.QuotientRing and specializes the @c _ring template
-    parameter to @c rings.integers.naive.Integers 
-    
+    parameter to @c rings.integers.naive.Integers
+
     @note      The field size must be a prime. The template will, however,
                accept compound numbers without hesitation. In this case, the
                class behaves like the quotient ring
                @f$ \mathbb{Z}/n\mathbb{Z} @f$.
-    
+
     @see       rings.quotients.naive.QuotientRing
-    
+
     @author    Peter Dinges <pdinges@acm.org>
     """
+
+    def __str__(self):
+        """
+        Returns string of the element (its remainder)
+        """
+        return str(self.remainder())
 
     @classmethod
     def characteristic(cls):
@@ -66,17 +72,17 @@ class FiniteField(QuotientRing, _ring=Integers):
         Return the field characteristic @f$ p @f$.
         """
         return cls._modulus
-    
+
     @classmethod
     def power(cls):
         """
         Return the power @f$ k @f$ of the characteristic that yields the field
         size: @f$ q = p^k @f$, where @f$ p @f$ is the field characteristic.
-        
+
         @note  In the current implementation, @f$ k @f$ is always 1.
         """
         return 1
-    
+
     @classmethod
     def size(cls):
         """
@@ -89,7 +95,7 @@ class FiniteField(QuotientRing, _ring=Integers):
         """
         Return a list of all field elements in ascending order
         @f$ (0, 1, 2, ..., p-1) @f$ (mod p).
-        
+
         @note  The method populates the complete list, so this operation might
                be expensive for large field characteristics.
         """
