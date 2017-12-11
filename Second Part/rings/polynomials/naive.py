@@ -409,7 +409,7 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
         x = self.__class__([0, 1])
         xp = x
         for i in range(1, l+1):
-            xp = xp.power_mod(p, self)
+            xp = pow(xp, p, self)
             if gcd(self, xp-x).degree() != 0:
                 return False
         return True
@@ -422,28 +422,27 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
 
         @note       We use cantor zassenhaus algorithm to do the factorization
         """
-        f = self.make_monic()
+        f = self.monic()
         factors = []
         if f.is_irreducible():
             factors.append(f)
         else:
-            if f.is_square_free():
-                polys = f.distinct_degree_factorization()
-                for (g, d) in polys:
-                    if g.is_irreducible():
-                        factors.append(g)
-                    else:
-                        g_factors = g.cantor_zassenhaus(d)
-                        factors.extend(g_factors)
-            else:
-                fPrime = f.derive()
-                (g, remainder) = divmod(f, gcd(f, fPrime))
-                g_factors = g.factorize()
-                for fact in g_factors:
-                    while(gcd(f, fact).degree() != 0):
-                        factors.append(fact)
-                        (f, remainder) = divmod(f, fact)
+            p = self._coefficient_field._modulus
+            x = self.__class__([0,1])
+            xp = x
+            i = 1
+            while(f.degree() > 0 and not f.is_irreducible()):
+                xp = pow(xp, p, self)
+                g = gcd(f, xp - x)
+                if g.degree() != 0:
+                    g_factors = g.cantor_zassenhaus(i)
+                    (f, fact) = f.remove_factors(g_factors)
+                    factors.extend(fact)
+                i = i + 1
+            if f.degree() > 0:
+                factors.append(f)
         return factors
+
 
     def distinct_degree_factorization(self):
         """
@@ -460,7 +459,7 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
         x = self.__class__([0, 1])
         xp = x
         while(f.degree() > 0):
-            xp = xp.power_mod(p, f)
+            xp = pow(xp, p, f)
             print("degree of xp = " + repr(xp.degree()))
             g = gcd(f, xp - x)
             if g.degree() != 0:
@@ -482,27 +481,24 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
 
         @return     The set of monic irreducible factors of input polynomial
         """
-        r = self.degree()/d
+        r = self.degree() / d
         factors = [self]
         p = self._coefficient_field._modulus
-        h = []
-        for i in range(0, self.degree()):
-            h.append(randint(0, p-1))
-        H = self.__class__(h)
         power = ((p**d - 1)) / 2 % (p-1)
-        g = H**power % self
-        while(not all_irreducible(factors)):
+        while(len(factors) < r) :
+            g = random_element(randrange(0, self.degree()))
+            g = pow(g, power, self)
             gen = (x for x in factors if x.degree() > d)
             for u in gen:
                 gcd_temp = gcd(g, u)
                 print(gcd_temp)
-                if gcd_temp.degree() != 1 and gcd_temp != u:
+                if gcd_temp.degree() != 0 and gcd_temp != u:
                     factors.remove(u)
                     factors.extend((gcd_temp, u/gcd_temp))
         return factors
 
     def is_square_free(self):
-        return gcd(self, self.derive()) == 1
+        return gcd(self, self.derive()).degree() == 0
 
     def derivative(self):
         """
@@ -535,7 +531,8 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
         coeffs = [randrange(0, cls._coefficient_field._modulus) for _ in range(n)]
 
         """ Make sure the leading coefficient is not zero,
-            so the generated polynomial has a degree exactly n """
+            so the generated polynomial has a degree exactly n
+        """
         lc = randrange(0, cls._coefficient_field._modulus)
         while lc == cls._coefficient_field.zero():
             lc = randrange(0, cls._coefficient_field._modulus)
@@ -544,10 +541,22 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
 
         return cls(coeffs)
 
+    def remove_factors(self, factors):
+        """
+        Remove from polynomial factors (to the power)
+        @return     the removed factors
+        """
+        return_factors = []
+        f = self
+        for fac in factors:
+            while(gcd(self, fac).degree() > 0):
+                return_factors.append(fac)
+                (self, remainder) = divmod(self, fac)
+        return (self, return_factors)
+
 
     def all_irreducible(polynomials):
         for poly in polynomials:
             if not poly.is_irreducible():
                 return False
             return True
-
