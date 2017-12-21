@@ -486,7 +486,7 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
         p = self._coefficient_field._modulus
         power = ((p**d - 1)) / 2 % (p-1)
         while(len(factors) < r) :
-            g = random_element(randrange(0, self.degree()))
+            g = self.random_element(randrange(0, self.degree()))
             g = pow(g, power, self)
             gen = (x for x in factors if x.degree() > d)
             for u in gen:
