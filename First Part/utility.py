@@ -1,10 +1,9 @@
-#Find inverse of a number (mod p) using extented Euclide algorithm
-def euclide(a, b):
-    x = [a, b]
-    r = [1, 0]
+#Find inverse of a n mod p using extented Euclide algorithm
+def euclide(n, p):
+    x = [p, n]
     s = [0 ,1]
 
-    def helper(x, r, s, i):
+    def helper(x, s, i):
         alpha = x[i-1]
         beta = x[i]
 
@@ -12,16 +11,15 @@ def euclide(a, b):
         gamma = alpha - beta*c
         if gamma < 1:
             return s[i]
-        x.append(x[i-1] - c*x[i])
-        r.append(r[i-1] - c*r[i])
+        x.append(gamma)
         s.append(s[i-1] - c*s[i])
         if gamma==1:
             return s[i+1]
         else :
-            return helper(x, r, s, i+1)
+            return helper(x, s, i+1)
 
-    res = helper(x, r, s, 1)
-    return res if res > 0 else res
+    res = helper(x, s, 1)
+    return res
 
 
 
