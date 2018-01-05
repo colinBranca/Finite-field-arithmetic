@@ -161,14 +161,15 @@ class Field:
         @param n   The exponent; it is expected to be a non-negative integer
                    type.  Negative integers and floats are unsupported.
         """
-        if n == 0:
+
+        if int(n) == 0:
             return self.one()
-        elif n % 2 == 0:
-            halfPower = self ** (n/2)
-            return halfPower * halfPower
-        else:
-            halfPower = self ** ((n-1)/2)
-            return self * halfPower * halfPower
+
+        result = self
+        for i in reversed(range(n.bit_length() - 1)):
+            result = result * result
+            if n & (1 << i):
+                result = result * self
 
 
     #- Base Operations (Defined in Derived Classes) ---------------------------
