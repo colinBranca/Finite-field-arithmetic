@@ -403,14 +403,15 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
         """
         if(self.degree() <= 1):
             return True
-
+        if(self.__coefficients[0] == 0):
+            return False
         l = ceil(self.degree()/2)
         p = self._coefficient_field._modulus
         x = self.__class__([0, 1])
         xp = x
         for i in range(1, l+1):
             xp = pow(xp, p, self)
-            if gcd(self, xp-x).degree() != 0:
+            if xp == x or gcd(self, xp-x).degree() != 0:
                 return False
         return True
 
@@ -478,6 +479,8 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
             e = (p**d - 1)//2
             b = pow(a, e, poly)
             b = b - poly.one()
+            if b == 0 :
+                break
 
             new_factor = gcd(b, poly)
             if new_factor.degree() > 0 and \

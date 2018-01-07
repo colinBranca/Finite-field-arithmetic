@@ -102,13 +102,13 @@ def isPrime(n):
 
     @return    True if @c n is prime, False otherwise
     """
+    #test if n is a known prime
+    if n in firstPrimes:
+        return True
+
     #test if n = 2^k
     if n % 2 == 0 or n == 1:
         return False
-
-    #test if n is a known prime
-    elif n in firstPrimes:
-        return True
 
     #use miller rabin method to test primality
     return millerRabin(n)
@@ -165,7 +165,7 @@ def findSD(n):
     while(d % 2 == 0):
         s += 1
         d /= 2
-    return (s, d)
+    return (s, int(d))
 
 
 def selectPrimesToTest(n):
