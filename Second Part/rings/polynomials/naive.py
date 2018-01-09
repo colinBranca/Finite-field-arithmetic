@@ -435,8 +435,8 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
             else:
                 g = v
 
+            g = g.monic()
             if g.degree() > 0:
-                g = g.monic()
 
                 factors_i = []
                 Polynomials.__poly_factor_equal_degree(factors_i, g, i)
@@ -463,6 +463,7 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
 
             if poly.degree() <= 1:
                 print("Exception, input polynomial is linear")
+                print(poly, poly.degree(), d)
                 return None
 
             p = poly._coefficient_field._modulus
@@ -473,6 +474,7 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
                     break
 
             new_factor = gcd(a, poly)
+            new_factor = new_factor.monic()
             if new_factor.degree() != 0:
                 break
 
@@ -483,15 +485,20 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
                 break
 
             new_factor = gcd(b, poly)
+            new_factor = new_factor.monic()
             if new_factor.degree() > 0 and \
                 new_factor.degree() != poly.degree():
 
                 break
 
         g = poly // new_factor
+        g = g.monic()
 
-        Polynomials.__poly_factor_equal_degree(factors, new_factor, d)
-        Polynomials.__poly_factor_equal_degree(factors, g, d)
+        if new_factor.degree() > 0:
+            Polynomials.__poly_factor_equal_degree(factors, new_factor, d)
+        if g.degree() > 0:
+            Polynomials.__poly_factor_equal_degree(factors, g, d)
+
 
     # def factorize(self):
     #     """
@@ -596,6 +603,9 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
         """
         Makes self into monic polynomial and returns it as a new instance
         """
+        if len(self.__coefficients) == 0:
+            return self
+
         lc = self.leading_coefficient()
         if lc == self._coefficient_field.one():
             return self.__class__(self.__coefficients[:])
@@ -607,7 +617,17 @@ class Polynomials( CommutativeRing, metaclass=template( "_coefficient_field" ) )
         """
         Return a random polynomial of degree up to n
         """
-        coeffs = [randrange(0, cls._coefficient_field._modulus) for _ in range(n)]
+        coeffs = [randrange(0, cls._coefficient_field._modulus) for _ in range(1, n+1)]
+
+        return cls(coeffs)
+
+    @classmethod
+    def random_monic_poly_degree(cls, n):
+        """
+        Return a random polynomial of degree up to n
+        """
+        coeffs = [randrange(0, cls._coefficient_field._modulus) for _ in range(n-1)]
+        coeffs.append(cls._coefficient_field.one())
 
         return cls(coeffs)
 
