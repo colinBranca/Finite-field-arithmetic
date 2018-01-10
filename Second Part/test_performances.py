@@ -18,27 +18,35 @@ firstPrimes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59,
 
 x1 = []
 first_times = []
-GF7  = FiniteField( 17 )
-GF7x = Polynomials( GF7 )
-for i in range(5, 20):
-    f = GF7x.random_element(i)
-    start = timeit.timeit()
-    factors = f.factor()
-    stop = timeit.timeit()
-    x1.append(i)
-    first_times.append(stop-start)
+GF  = FiniteField( 59 )
+GFx = Polynomials( GF )
+for deg in range(50, 200, 10):
+    sum_times = 0
+    for _ in range(10):
+        f = GFx.random_monic_poly_degree(deg)
+        start = timeit.timeit()
+        factors = f.factor()
+        stop = timeit.timeit()
+        sum_times = sum_times + stop - start
+    x1.append(deg)
+    first_times.append(sum_times/10)
+
+print("part 1 done ")
 
 x2 = []
 second_times = []
 for p in firstPrimes:
-    GF7  = FiniteField( p )
-    GF7x = Polynomials( GF7 )
-    f = GF7x.random_element(20)
-    start = timeit.timeit()
-    factors = f.factor()
-    stop = timeit.timeit()
+    sum_times = 0
+    for _ in range(10):
+        GF  = FiniteField( p )
+        GFx = Polynomials( GF )
+        f = GFx.random_monic_poly_degree(50)
+        start = timeit.timeit()
+        factors = f.factor()
+        stop = timeit.timeit()
+        sum_times = sum_times + stop - start
     x2.append(p)
-    second_times.append(stop-start)
+    second_times.append(sum_times/10)
 
 
 plt.figure(1)
