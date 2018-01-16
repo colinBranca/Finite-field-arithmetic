@@ -34,10 +34,7 @@ def test_single(p):
         prod_res *= (fac**mu)
 
 #    print(prod_res)
-    if product.monic() == prod_res.monic():
-        return True
-    else:
-        return False
+    return product.monic() == prod_res.monic()
 
 
 #    print(i)
